@@ -4,15 +4,17 @@
 #include "hcsr04.h"
 
 
-HCSR04_Status_t HCSR04Init (HCSR04_t *hcsr04, TIM_HandleTypeDef *htimer, GPIO_TypeDef *Trig_Port, uint16_t Trig_Pin,GPIO_TypeDef *Echo_Port, uint16_t Echo_Pin)
+HCSR04_Status_t HCSR04Init (HCSR04_t *hcsr04, TIM_HandleTypeDef *htimer, GPIO_TypeDef *Trig_Port, uint16_t Trig_Pin,uint32_t Echo_TimChannelStart, uint32_t Echo_TimChannelStop)
 {
 	hcsr04->htim = htimer;
 	hcsr04->Trigger_Port = Trig_Port;
 	hcsr04->Trigger_Pin = Trig_Pin;
-	hcsr04->Echo_Port = Echo_Port;
-	hcsr04->Echo_Pin = Echo_Pin;
+	hcsr04->Echo_TimChannelStart = Echo_TimChannelStart;
+	hcsr04->Echo_TimChannelStop = Echo_TimChannelStop;
 
 	HAL_TIM_Base_Start(hcsr04->htim);
+	HAL_TIM_IC_Start(hcsr04->htim,hcsr04->Echo_TimChannelStart);
+	HAL_TIM_IC_Start_IT(hcsr04->htim,hcsr04->Echo_TimChannelStop);
 
 	if(hcsr04->htim == NULL)
 	{
@@ -46,18 +48,19 @@ HCSR04_Status_t HCSR04StartMeasure (HCSR04_t *hcsr04)
 HCSR04_Status_t HCSR04WaitForResponse (HCSR04_t *hcsr04)
 {
 
-	while(GPIO_PIN_RESET == HAL_GPIO_ReadPin(hcsr04->Echo_Port,hcsr04->Echo_Pin))
-			{
-		// wait for rising edge
-			}
-	hcsr04->htim->Instance->CNT = 0;
 
-
-	while ( GPIO_PIN_SET == HAL_GPIO_ReadPin(hcsr04->Echo_Port,hcsr04->Echo_Pin))
-	{
-		// wait for falling edge
-	}
-	hcsr04->Result_us = hcsr04->htim->Instance->CNT;
+//	while(GPIO_PIN_RESET == HAL_GPIO_ReadPin(hcsr04->Echo_TimChannelStart,hcsr04->Echo_TimChannelStop))
+//			{
+//		// wait for rising edge
+//			}
+//	hcsr04->htim->Instance->CNT = 0;
+//
+//
+//	while ( GPIO_PIN_SET == HAL_GPIO_ReadPin(hcsr04->Echo_TimChannelStart,hcsr04->Echo_TimChannelStop))
+//	{
+//		// wait for falling edge
+//	}
+//	hcsr04->Result_us = hcsr04->htim->Instance->CNT;
 
 	return 	HCSR04_OK;
 }
@@ -77,6 +80,13 @@ HCSR04_Status_t HCSR04CalculateResultIntiger (HCSR04_t *hcsr04, uint16_t *Result
 	return 	HCSR04_OK;
 }
 
+void HCSR04_InterruptHandler(HCSR04_t *hcsr04)
+{
+
+	hcsr04->Result_us = __HAL_TIM_GET_COMPARE(hcsr04->htim,hcsr04->Echo_TimChannelStop) - __HAL_TIM_GET_COMPARE(hcsr04->htim,hcsr04->Echo_TimChannelStart);
+	//HAL_TIM_IC_Start_IT(hcsr04->htim,hcsr04->Echo_TimChannelStop);
+
+}
 
 
 

@@ -28,8 +28,8 @@ typedef struct
 	GPIO_TypeDef 		*Trigger_Port;
 	uint16_t 			Trigger_Pin;
 
-	GPIO_TypeDef 		*Echo_Port;
-	uint16_t 			Echo_Pin;
+	uint32_t 		Echo_TimChannelStart;
+	uint32_t 		 Echo_TimChannelStop;
 
 	uint16_t 			Result_us;
 
@@ -38,12 +38,12 @@ typedef struct
 } HCSR04_t;
 
 
-HCSR04_Status_t HCSR04Init (HCSR04_t *hcsr04, TIM_HandleTypeDef *htimer, GPIO_TypeDef *Trig_Port, uint16_t Trig_Pin,GPIO_TypeDef *Echo_Port, uint16_t Echo_Pin);
+HCSR04_Status_t HCSR04Init (HCSR04_t *hcsr04, TIM_HandleTypeDef *htimer, GPIO_TypeDef *Trig_Port, uint16_t Trig_Pin,uint32_t Echo_TimChannelStart, uint32_t Echo_TimChannelStop);
 HCSR04_Status_t HCSR04StartMeasure (HCSR04_t *hcsr04);
 HCSR04_Status_t HCSR04WaitForResponse (HCSR04_t *hcsr04);
 HCSR04_Status_t HCSR04CalculateResultFloat (HCSR04_t *hcsr04, float *Result);
 HCSR04_Status_t HCSR04CalculateResultIntiger (HCSR04_t *hcsr04, uint16_t *Result);
-
+void HCSR04_InterruptHandler(HCSR04_t *hcsr04);
 
 
 #endif /* INC_HCSR04_H_ */

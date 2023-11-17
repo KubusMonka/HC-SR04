@@ -53,6 +53,7 @@ uint16_t Result_HCSR04_u16;
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
+static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -92,8 +93,11 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_TIM3_Init();
+
+  /* Initialize interrupts */
+  MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-  HCSR04Init(&HCSR04,&htim3,HCSR04_Trigger_GPIO_Port,HCSR04_Trigger_Pin,HCSR04_Echo_GPIO_Port,HCSR04_Echo_Pin);
+  HCSR04Init(&HCSR04,&htim3,HCSR04_Trigger_GPIO_Port,HCSR04_Trigger_Pin,TIM_CHANNEL_1,TIM_CHANNEL_2);
 
   /* USER CODE END 2 */
 
@@ -101,12 +105,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
 	  HCSR04StartMeasure(&HCSR04);
-	  HCSR04WaitForResponse (&HCSR04);
+     // HCSR04WaitForResponse (&HCSR04);
 	  HCSR04CalculateResultFloat (&HCSR04, &Result_HCSR04_f);
 	  HCSR04CalculateResultIntiger(&HCSR04,&Result_HCSR04_u16);
-	  HAL_Delay(1000);
+	  HAL_Delay(100);
+    /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -158,8 +163,26 @@ void SystemClock_Config(void)
   }
 }
 
-/* USER CODE BEGIN 4 */
+/**
+  * @brief NVIC Configuration.
+  * @retval None
+  */
+static void MX_NVIC_Init(void)
+{
+  /* TIM3_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(TIM3_IRQn);
+}
 
+/* USER CODE BEGIN 4 */
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+	if(htim== HCSR04.htim)
+	{
+		HCSR04_InterruptHandler(&HCSR04);
+
+	}
+}
 /* USER CODE END 4 */
 
 /**
