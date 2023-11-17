@@ -97,7 +97,7 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-  HCSR04Init(&HCSR04,&htim3,HCSR04_Trigger_GPIO_Port,HCSR04_Trigger_Pin,TIM_CHANNEL_1,TIM_CHANNEL_2);
+  HCSR04Init(&HCSR04,&htim3,&htim3,TIM_CHANNEL_3,TIM_CHANNEL_1,TIM_CHANNEL_2);
 
   /* USER CODE END 2 */
 
@@ -105,8 +105,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  HCSR04StartMeasure(&HCSR04);
-     // HCSR04WaitForResponse (&HCSR04);
+	  //HCSR04StartMeasure(&HCSR04);
+      //HCSR04WaitForResponse (&HCSR04);
 	  HCSR04CalculateResultFloat (&HCSR04, &Result_HCSR04_f);
 	  HCSR04CalculateResultIntiger(&HCSR04,&Result_HCSR04_u16);
 	  HAL_Delay(100);
@@ -177,7 +177,7 @@ static void MX_NVIC_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-	if(htim== HCSR04.htim)
+	if(htim== HCSR04.htim_echo)
 	{
 		HCSR04_InterruptHandler(&HCSR04);
 

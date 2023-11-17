@@ -67,8 +67,6 @@ void Error_Handler(void);
 #define LD2_GPIO_Port GPIOA
 #define HCSR04_Echo_Pin GPIO_PIN_6
 #define HCSR04_Echo_GPIO_Port GPIOA
-#define HCSR04_Trigger_Pin GPIO_PIN_0
-#define HCSR04_Trigger_GPIO_Port GPIOB
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
